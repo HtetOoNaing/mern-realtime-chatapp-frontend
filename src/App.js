@@ -5,10 +5,12 @@ import Chat from "./pages/Chat";
 
 function App() {
   return (
-    <Switch>
-      <Route path="/" exact  component={Home} />
-      <Route path="/chats" component={Chat} />
-    </Switch>
+    <div className="app">
+      <Switch>
+        <Route path="/" exact component={Home} />
+        <Route path="/chats" component={Chat} />
+      </Switch>
+    </div>
   );
 }
 
