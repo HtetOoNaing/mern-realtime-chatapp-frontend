@@ -6,6 +6,7 @@ import {
   InputGroup,
   InputRightElement,
   VStack,
+  useToast,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 
@@ -16,15 +17,65 @@ const Signup = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [pic, setPic] = useState("");
   const [show, setShow] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const toast = useToast();
 
   const handleClick = () => {
     setShow(!show);
   };
   const uploadImage = (file) => {
     console.log("file", file);
+    setLoading(true);
+    if (file === undefined) {
+      toast({
+        title: "Please select an image.",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+      return;
+    }
+    if (file.type === "image/jpeg" || file.type === "image/png") {
+      const formdata = new FormData();
+      formdata.append("file", file);
+      formdata.append("upload_preset", "chat-app");
+      formdata.append("cloud_name", "dghvsnwoz");
+      fetch("https://api.cloudinary.com/v1_1/dghvsnwoz/image/upload", {
+        method: "post",
+        body: formdata,
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setPic(data.url.toString());
+          setLoading(false);
+        });
+    } else {
+      toast({
+        title: "Please select an image.",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+    }
   };
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true)
+    if (!name || !email || !password || !confirmPassword) {
+      toast({
+        title: "Please fill all the fields.",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+      return;
+    }
   };
 
   return (
@@ -92,6 +143,7 @@ const Signup = () => {
         width="100%"
         style={{ marginTop: 15 }}
         onClick={handleSubmit}
+        isLoading={loading}
       >
         Sign Up
       </Button>
