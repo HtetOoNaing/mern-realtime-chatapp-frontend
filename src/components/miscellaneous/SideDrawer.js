@@ -29,7 +29,7 @@ import ChatLoading from "../ChatLoading";
 import UserListItem from "../userAvatar/UserListItem";
 
 const SideDrawer = () => {
-  const { user } = ChatState();
+  const { user, setSelectedChat, chats, setChats  } = ChatState();
   const history = useHistory();
   const toast = useToast();
   const [search, setSearch] = useState("");
@@ -76,8 +76,28 @@ const SideDrawer = () => {
     }
   };
 
-  const accessChat = (userId) => {
-    console.log("userId", userId);
+  const accessChat = async (userId) => {
+    try {
+      setLoadingChat(true);
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+      const { data } = await axios.post(`/api/chat`, { userId }, config);
+      setSelectedChat(data);
+      setLoadingChat(false);
+    } catch (error) {
+      toast({
+        title: "Error fetching the chat!",
+        description: error.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom-left",
+      });
+    }
   };
 
   return (
