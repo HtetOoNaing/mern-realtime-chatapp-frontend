@@ -1,4 +1,5 @@
-import { Box, useToast } from "@chakra-ui/react";
+import { AddIcon } from "@chakra-ui/icons";
+import { Box, Button, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { ChatState } from "../context/ChatProvider";
@@ -47,7 +48,27 @@ const MyChats = () => {
       w={{ base: "100%", md: "31%" }}
       borderRadius="lg"
       borderWidth="1px"
-    ></Box>
+    >
+      <Box
+        pb={3}
+        px={3}
+        fontSize={{ base: "28px", md: "30px" }}
+        fontFamily="Work sans"
+        display="flex"
+        w="100%"
+        justifyContent="space-between"
+        alignItems="center"
+      >
+        My Chats
+        <Button
+          display="flex"
+          fontSize={{ base: "17px", md: "10px", lg: "17px" }}
+          rightIcon={<AddIcon />}
+        >
+          New Group Chat
+        </Button>
+      </Box>
+    </Box>
   );
 };
 
