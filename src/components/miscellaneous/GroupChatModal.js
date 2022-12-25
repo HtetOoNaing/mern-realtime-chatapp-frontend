@@ -15,6 +15,7 @@ import {
   useToast,
   FormControl,
   Input,
+  Box,
 } from "@chakra-ui/react";
 import { ChatState } from "../../context/ChatProvider";
 import axios from "axios";
@@ -45,7 +46,6 @@ const GroupChatModal = ({ children }) => {
         },
       };
       const { data } = await axios.get(`/api/user?search=${query}`, config);
-      console.log("data", data);
       setLoading(false);
       setSearchResult(data);
     } catch (error) {
@@ -75,15 +75,62 @@ const GroupChatModal = ({ children }) => {
   };
 
   const handleDelete = (userToRemove) => {
-    
-  }
+    setSelectedUsers(
+      selectedUsers.filter((sel) => sel._id !== userToRemove._id)
+    );
+  };
 
-  const handleSubmit = () => {};
+  const handleSubmit = async () => {
+    if (!groupChatName || selectedUsers.length <= 0) {
+      toast({
+        title: "Please fill all the fields",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      return;
+    }
+
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+      const { data } = await axios.post(
+        `/api/chat/group`,
+        {
+          name: groupChatName,
+          users: JSON.stringify(selectedUsers.map((u) => u._id)),
+        },
+        config
+      );
+      setChats([data, ...chats]);
+      onClose();
+      toast({
+        title: "New Group Chat Created!",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+    } catch (error) {
+      toast({
+        title: "Fail to create the chat!",
+        description: error.response.data,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+    }
+  };
 
   return (
     <>
       <span onClick={onOpen}>{children}</span>
-      <Modal isOpen={isOpen} onClose={onClose} isCentered>
+      <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader
@@ -110,13 +157,15 @@ const GroupChatModal = ({ children }) => {
                 onChange={(e) => handleSearch(e.target.value)}
               />
             </FormControl>
-            {selectedUsers.map((u) => (
-              <UserBadgeItem
-                key={u._id}
-                user={user}
-                handleFunction={() => handleDelete(u)}
-              />
-            ))}
+            <Box w="100%" display="flex" flexWrap="wrap">
+              {selectedUsers.map((u) => (
+                <UserBadgeItem
+                  key={u._id}
+                  user={u}
+                  handleFunction={() => handleDelete(u)}
+                />
+              ))}
+            </Box>
             {loading ? (
               <div>loading...</div>
             ) : (
