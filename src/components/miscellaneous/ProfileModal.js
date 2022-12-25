@@ -10,8 +10,8 @@ import {
   useDisclosure,
   IconButton,
   Button,
-  Image,
   Text,
+  Avatar,
 } from "@chakra-ui/react";
 import { ViewIcon } from "@chakra-ui/icons";
 
@@ -46,12 +46,7 @@ const ProfileModal = ({ user, children }) => {
             alignItems="center"
             justifyContent="space-between"
           >
-            <Image
-              borderRadius="full"
-              boxSize="150px"
-              src={user.pic}
-              alt={user.name}
-            />
+            <Avatar boxSize="150px" size="2xl" src={user.pic} name={user.name} />
             <Text
               fontSize={{ base: "20px", md: "22px" }}
               fontFamily="Work sans"
