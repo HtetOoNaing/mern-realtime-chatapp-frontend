@@ -16,6 +16,7 @@ import {
   FormControl,
   Input,
   Box,
+  Spinner,
 } from "@chakra-ui/react";
 import { ChatState } from "../../context/ChatProvider";
 import axios from "axios";
@@ -58,6 +59,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain }) => {
         isClosable: true,
         position: "bottom-left",
       });
+      setLoading(false);
     }
   };
 
@@ -165,6 +167,10 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain }) => {
 
   const handleRemove = async (user) => {};
 
+  const handleAddUser = async (user) => {
+    
+  }
+
   return (
     <>
       <IconButton
@@ -218,6 +224,19 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain }) => {
                 onChange={(e) => handleSearch(e.target.value)}
               />
             </FormControl>
+            {loading ? (
+              <Spinner size="lg" />
+            ) : (
+              searchResult
+                ?.slice(0, 4)
+                .map((user) => (
+                  <UserListItem
+                    key={user._id}
+                    user={user}
+                    handleClick={() => handleAddUser(user)}
+                  />
+                ))
+            )}
             {/* <Box w="100%" display="flex" flexWrap="wrap">
               {selectedUsers.map((u) => (
                 <UserBadgeItem
