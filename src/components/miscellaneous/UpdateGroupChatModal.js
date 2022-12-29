@@ -165,7 +165,48 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain }) => {
     setGroupChatName("");
   };
 
-  const handleRemove = async (user) => {};
+  const handleRemove = async (user1) => {
+    if (selectedChat.groupAdmin._id !== user._id && user1._id !== user._id) {
+      toast({
+        title: "Only admin can remove!",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      return;
+    }
+    try {
+      setLoading(true);
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+      const { data } = await axios.put(
+        `/api/chat/groupremove`,
+        {
+          chatId: selectedChat._id,
+          userId: user1._id,
+        },
+        config
+      );
+
+      user1._id === user._id ? setSelectedChat(null) : setSelectedChat(data);
+      setFetchAgain(!fetchAgain);
+      setLoading(false);
+    } catch (error) {
+      toast({
+        title: "Error Occured!",
+        description: error.response.data.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+    }
+  };
 
   const handleAddUser = async (user1) => {
     if (selectedChat.users.find((u) => u._id === user1._id)) {
@@ -245,7 +286,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain }) => {
                 <UserBadgeItem
                   key={u._id}
                   user={u}
-                  handleFunction={() => handleDelete(u)}
+                  handleFunction={() => handleRemove(u)}
                 />
               ))}
             </Box>
@@ -286,28 +327,6 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain }) => {
                   />
                 ))
             )}
-            {/* <Box w="100%" display="flex" flexWrap="wrap">
-              {selectedUsers.map((u) => (
-                <UserBadgeItem
-                  key={u._id}
-                  user={u}
-                  handleFunction={() => handleDelete(u)}
-                />
-              ))}
-            </Box> */}
-            {/* {loading ? (
-              <div>loading...</div>
-            ) : (
-              searchResult
-                ?.slice(0, 4)
-                .map((user) => (
-                  <UserListItem
-                    key={user._id}
-                    user={user}
-                    handleClick={() => handleGroup(user)}
-                  />
-                ))
-            )} */}
           </ModalBody>
 
           <ModalFooter>
