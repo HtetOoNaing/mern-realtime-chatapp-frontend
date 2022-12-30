@@ -14,6 +14,8 @@ import { getSender, getSenderFull } from "../config/ChatLogic";
 import { ChatState } from "../context/ChatProvider";
 import ProfileModal from "./miscellaneous/ProfileModal";
 import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal";
+import ScrollableChat from "./ScrollableChat";
+import "./styles.css";
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const { user, selectedChat, setSelectedChat } = ChatState();
@@ -118,6 +120,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 <UpdateGroupChatModal
                   fetchAgain={fetchAgain}
                   setFetchAgain={setFetchAgain}
+                  fetchMessages={fetchMessages}
                 />
               </>
             ) : (
@@ -149,7 +152,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 color="teal"
               />
             ) : (
-              <div>{/* Messages */}</div>
+              <div className="messages">
+                <ScrollableChat messages={messages} />
+              </div>
             )}
             <FormControl onKeyDown={sendMessage} isRequired mt={3}>
               <Input
