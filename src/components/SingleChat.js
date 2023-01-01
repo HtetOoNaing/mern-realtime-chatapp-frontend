@@ -46,6 +46,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       console.log("messages", data);
       setMessages(data);
       setLoading(false);
+      socket.emit("join chat", selectedChat._id);
     } catch (error) {
       toast({
         title: "Error Occured!",
@@ -60,6 +61,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   useEffect(() => {
     fetchMessages();
+    selectedChatCompare = selectedChat;
   }, [selectedChat]);
 
   useEffect(() => {
