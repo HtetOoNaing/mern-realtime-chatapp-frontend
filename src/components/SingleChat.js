@@ -65,8 +65,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     socket = io(process.env.BASE_URL);
     socket.emit("setup", user);
     socket.on("connected", () => setSocketConnected(true));
-    socket.on("typing", () => setTyping(true));
-    socket.on("stop typing", () => setTyping(false));
+    socket.on("typing", () => setIsTyping(true));
+    socket.on("stop typing", () => setIsTyping(false));
   }, []);
 
   useEffect(() => {
@@ -204,6 +204,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               </div>
             )}
             <FormControl onKeyDown={sendMessage} isRequired mt={3}>
+              {isTyping ? <div>Typing...</div> : <></>}
               <Input
                 variant="filled"
                 bg="#E0E0E0"
