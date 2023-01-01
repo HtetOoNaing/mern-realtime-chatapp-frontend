@@ -60,15 +60,15 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   useEffect(() => {
-    fetchMessages();
-    selectedChatCompare = selectedChat;
-  }, [selectedChat]);
-
-  useEffect(() => {
     socket = io(process.env.BASE_URL);
     socket.emit("setup", user);
     socket.on("connected", () => setSocketConnected(true));
   }, []);
+
+  useEffect(() => {
+    fetchMessages();
+    selectedChatCompare = selectedChat;
+  }, [selectedChat]);
 
   useEffect(() => {
     socket.on("message received", (newMessageReceived) => {
@@ -103,6 +103,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         );
         setMessages([...messages, data]);
         console.log("data", data);
+        socket.emit("new message", data);
       } catch (error) {
         toast({
           title: "Error Occured!",
