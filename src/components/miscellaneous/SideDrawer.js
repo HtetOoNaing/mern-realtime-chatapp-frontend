@@ -28,9 +28,17 @@ import { useHistory } from "react-router-dom";
 import axios from "axios";
 import ChatLoading from "../ChatLoading";
 import UserListItem from "../userAvatar/UserListItem";
+import { getSender } from "../../config/ChatLogic";
 
 const SideDrawer = () => {
-  const { user, setSelectedChat, chats, setChats  } = ChatState();
+  const {
+    user,
+    setSelectedChat,
+    chats,
+    setChats,
+    notifications,
+    setNotifications,
+  } = ChatState();
   const history = useHistory();
   const toast = useToast();
   const [search, setSearch] = useState("");
@@ -87,11 +95,11 @@ const SideDrawer = () => {
         },
       };
       const { data } = await axios.post(`/api/chat`, { userId }, config);
-      if (!chats.find(c => c._id === data._id)) setChats([data, ...chats])
+      if (!chats.find((c) => c._id === data._id)) setChats([data, ...chats]);
       setSelectedChat(data);
       setLoadingChat(false);
-      onClose()
-    } catch (error) { 
+      onClose();
+    } catch (error) {
       toast({
         title: "Error fetching the chat!",
         description: error.message,
@@ -130,7 +138,16 @@ const SideDrawer = () => {
             <MenuButton p={1}>
               <BellIcon fontSize="2xl" m={1} />
             </MenuButton>
-            {/* <MenuList></MenuList> */}
+            <MenuList>
+              {!notifications.length && <MenuItem>No New Messages</MenuItem>}
+              {notifications.map((noti) => (
+                <MenuItem key={noti._id}>
+                  {noti.chat.isGroupChat
+                    ? `New message in ${noti.chat.chatName}`
+                    : `New message from ${getSender(user, noti.chat.users)}`}
+                </MenuItem>
+              ))}
+            </MenuList>
           </Menu>
           <Menu>
             <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>

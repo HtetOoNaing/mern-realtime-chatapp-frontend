@@ -23,7 +23,13 @@ import animationData from "../animations/typing.json";
 let socket, selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
-  const { user, selectedChat, setSelectedChat } = ChatState();
+  const {
+    user,
+    selectedChat,
+    setSelectedChat,
+    notifications,
+    setNotifications,
+  } = ChatState();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -41,6 +47,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     },
   };
 
+  console.log("notifications", notifications);
+
   const fetchMessages = async () => {
     if (!selectedChat) return;
     try {
@@ -55,8 +63,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         `/api/message/${selectedChat._id}`,
         config
       );
-      console.log("selectedChat", selectedChat);
-      console.log("messages", data);
       setMessages(data);
       setLoading(false);
       socket.emit("join chat", selectedChat._id);
@@ -92,6 +98,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         selectedChatCompare._id !== newMessageReceived.chat._id
       ) {
         // give notification
+        if (!notifications.includes(newMessageReceived)) {
+          setNotifications([newMessageReceived, ...notifications]);
+          setFetchAgain(!fetchAgain);
+        }
       } else {
         setMessages([...messages, newMessageReceived]);
       }
@@ -118,7 +128,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           config
         );
         setMessages([...messages, data]);
-        console.log("data", data);
         socket.emit("new message", data);
       } catch (error) {
         toast({
