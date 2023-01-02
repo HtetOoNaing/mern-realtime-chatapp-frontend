@@ -141,7 +141,13 @@ const SideDrawer = () => {
             <MenuList>
               {!notifications.length && <MenuItem>No New Messages</MenuItem>}
               {notifications.map((noti) => (
-                <MenuItem key={noti._id}>
+                <MenuItem
+                  key={noti._id}
+                  onClick={() => {
+                    setSelectedChat(noti.chat);
+                    setNotifications(notifications.filter((no) => no !== noti));
+                  }}
+                >
                   {noti.chat.isGroupChat
                     ? `New message in ${noti.chat.chatName}`
                     : `New message from ${getSender(user, noti.chat.users)}`}
