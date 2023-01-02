@@ -29,6 +29,7 @@ import axios from "axios";
 import ChatLoading from "../ChatLoading";
 import UserListItem from "../userAvatar/UserListItem";
 import { getSender } from "../../config/ChatLogic";
+import NotificationBadge, { Effect } from "react-notification-badge";
 
 const SideDrawer = () => {
   const {
@@ -136,6 +137,10 @@ const SideDrawer = () => {
         <div>
           <Menu>
             <MenuButton p={1}>
+              <NotificationBadge
+                count={notifications.length}
+                effect={Effect.ROTATE_Y}
+              />
               <BellIcon fontSize="2xl" m={1} />
             </MenuButton>
             <MenuList>
