@@ -47,8 +47,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     },
   };
 
-  console.log("notifications", notifications);
-
   const fetchMessages = async () => {
     if (!selectedChat) return;
     try {

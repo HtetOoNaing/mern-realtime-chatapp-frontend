@@ -11,6 +11,7 @@ import {
 import React, { useState } from "react";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
+import { ChatState } from "../../context/ChatProvider";
 
 const Signup = () => {
   const history = useHistory();
@@ -22,12 +23,12 @@ const Signup = () => {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const toast = useToast();
+  const { setUser } = ChatState();
 
   const handleClick = () => {
     setShow(!show);
   };
   const uploadImage = (file) => {
-    console.log("file", file);
     setLoading(true);
     if (file === undefined) {
       toast({
@@ -114,6 +115,7 @@ const Signup = () => {
         position: "bottom",
       });
       localStorage.setItem("userInfo", JSON.stringify(data));
+      setUser(data);
       setLoading(false);
       history.push("/chats");
     } catch (error) {

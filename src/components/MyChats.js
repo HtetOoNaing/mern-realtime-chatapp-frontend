@@ -1,14 +1,13 @@
 import { AddIcon } from "@chakra-ui/icons";
 import { Box, Button, Stack, Text, useToast } from "@chakra-ui/react";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { getSender } from "../config/ChatLogic";
 import { ChatState } from "../context/ChatProvider";
 import ChatLoading from "./ChatLoading";
 import GroupChatModal from "./miscellaneous/GroupChatModal";
 
 const MyChats = ({ fetchAgain }) => {
-  const [loggedUser, setLoggedUser] = useState();
   const { user, selectedChat, setSelectedChat, chats, setChats } = ChatState();
 
   const toast = useToast();
@@ -35,7 +34,6 @@ const MyChats = ({ fetchAgain }) => {
   };
 
   useEffect(() => {
-    setLoggedUser(JSON.parse(localStorage.getItem("userInfo")));
     fetchChats();
   }, [fetchAgain]);
 
@@ -97,7 +95,7 @@ const MyChats = ({ fetchAgain }) => {
                 <Text>
                   {chat.isGroupChat
                     ? chat.chatName
-                    : getSender(loggedUser, chat.users)}
+                    : getSender(user, chat.users)}
                 </Text>
               </Box>
             ))}
