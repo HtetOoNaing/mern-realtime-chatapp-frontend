@@ -53,44 +53,32 @@ const SideDrawer = () => {
     history.push("/");
   };
 
-  const handleSearchChange = (e) => {
+  const handleSearchChange = async (e) => {
     const { value } = e.target;
     setSearch(value);
-    if (!value) {
+    if (value) {
+      try {
+        setLoading(true);
+        const config = {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        };
+        const { data } = await axios.get(`/api/user?search=${value}`, config);
+        setSearchResult(data);
+        setLoading(false);
+      } catch (error) {
+        toast({
+          title: "Error Occured!",
+          description: "Failed to load the search results",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "bottom-left",
+        });
+      }
+    } else {
       setSearchResult([]);
-    }
-  };
-
-  const handleSearch = async () => {
-    if (!search) {
-      toast({
-        title: "Please enter something in search",
-        status: "warning",
-        duration: 5000,
-        isClosable: true,
-        position: "top-left",
-      });
-      return;
-    }
-    try {
-      setLoading(true);
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      };
-      const { data } = await axios.get(`/api/user?search=${search}`, config);
-      setSearchResult(data);
-      setLoading(false);
-    } catch (error) {
-      toast({
-        title: "Error Occured!",
-        description: "Failed to load the search results",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom-left",
-      });
     }
   };
 
@@ -197,13 +185,9 @@ const SideDrawer = () => {
             <Box display="flex" pb={2}>
               <Input
                 placeholder="Search by name or email"
-                mr={2}
                 value={search}
                 onChange={handleSearchChange}
               />
-              <Button onClick={handleSearch}>
-                <i className="fas fa-search"></i>
-              </Button>
             </Box>
             {loading ? (
               <ChatLoading />
