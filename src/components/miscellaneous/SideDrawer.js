@@ -53,6 +53,14 @@ const SideDrawer = () => {
     history.push("/");
   };
 
+  const handleSearchChange = (e) => {
+    const { value } = e.target;
+    setSearch(value);
+    if (!value) {
+      setSearchResult([]);
+    }
+  };
+
   const handleSearch = async () => {
     if (!search) {
       toast({
@@ -191,9 +199,11 @@ const SideDrawer = () => {
                 placeholder="Search by name or email"
                 mr={2}
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={handleSearchChange}
               />
-              <Button onClick={handleSearch}>Go</Button>
+              <Button onClick={handleSearch}>
+                <i className="fas fa-search"></i>
+              </Button>
             </Box>
             {loading ? (
               <ChatLoading />
@@ -209,12 +219,7 @@ const SideDrawer = () => {
             {loadingChat && <Spinner ml="auto" display="flex" />}
           </DrawerBody>
 
-          <DrawerFooter>
-            <Button variant="outline" mr={3} onClick={onClose}>
-              Cancel
-            </Button>
-            <Button colorScheme="blue">Save</Button>
-          </DrawerFooter>
+          <DrawerFooter></DrawerFooter>
         </DrawerContent>
       </Drawer>
     </>
