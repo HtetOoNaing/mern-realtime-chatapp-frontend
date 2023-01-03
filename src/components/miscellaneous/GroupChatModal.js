@@ -8,10 +8,7 @@ import {
   ModalBody,
   ModalCloseButton,
   useDisclosure,
-  IconButton,
   Button,
-  Image,
-  Text,
   useToast,
   FormControl,
   Input,
@@ -21,6 +18,7 @@ import { ChatState } from "../../context/ChatProvider";
 import axios from "axios";
 import UserListItem from "../userAvatar/UserListItem";
 import UserBadgeItem from "../userAvatar/UserBadgeItem";
+import { Select } from "chakra-react-select";
 
 const GroupChatModal = ({ children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -30,6 +28,7 @@ const GroupChatModal = ({ children }) => {
   const [searchResult, setSearchResult] = useState([]);
   const [loading, setLoading] = useState(false);
   const toast = useToast();
+  const [value, setValue] = useState([]);
 
   const { user, chats, setChats } = ChatState();
 
@@ -179,6 +178,22 @@ const GroupChatModal = ({ children }) => {
                   />
                 ))
             )}
+            <FormControl>
+              <Select
+                isMulti
+                name="colors"
+                options={[
+                  { value: "blue", label: "Blue", color: "#0052CC" },
+                  { value: "purple", label: "Purple", color: "#5243AA" },
+                  { value: "red", label: "Red", color: "#FF5630" },
+                  { value: "orange", label: "Orange", color: "#FF8B00" },
+                  { value: "yellow", label: "Yellow", color: "#FFC400" },
+                  { value: "green", label: "Green", color: "#36B37E" },
+                ]}
+                placeholder="Select some colors..."
+                closeMenuOnSelect={false}
+              />
+            </FormControl>
           </ModalBody>
 
           <ModalFooter>
