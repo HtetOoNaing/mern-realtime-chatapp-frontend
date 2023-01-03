@@ -1,5 +1,5 @@
 import { AddIcon } from "@chakra-ui/icons";
-import { Box, Button, Stack, Text, useToast } from "@chakra-ui/react";
+import { Box, Button, Stack, Text, useToast, Avatar } from "@chakra-ui/react";
 import axios from "axios";
 import React, { useEffect } from "react";
 import { getSender } from "../config/ChatLogic";
@@ -72,33 +72,54 @@ const MyChats = ({ fetchAgain }) => {
       <Box
         display="flex"
         flexDir="column"
-        p={3}
-        bg="#F8F8F8"
+        mt={2}
+        // p={2}
+        // bg="#F8F8F8"
         w="100%"
         h="100%"
         borderRadius="lg"
         overflowY="hidden"
       >
         {chats ? (
-          <Stack overflowY="scroll">
-            {chats.map((chat) => (
-              <Box
-                onClick={() => setSelectedChat(chat)}
-                cursor="pointer"
-                bg={selectedChat === chat ? "#38B2AC" : "#E8E8E8"}
-                color={selectedChat === chat ? "white" : "black"}
-                px={3}
-                py={2}
-                borderRadius="lg"
-                key={chat._id}
-              >
-                <Text>
-                  {chat.isGroupChat
-                    ? chat.chatName
-                    : getSender(user, chat.users)}
-                </Text>
-              </Box>
-            ))}
+          <Stack overflowY="scroll" spacing={0}>
+            {chats.map((chat) => {
+              const sender = getSender(user, chat.users);
+              return (
+                <Box
+                  onClick={() => setSelectedChat(chat)}
+                  cursor="pointer"
+                  bg={selectedChat === chat ? "#38B2AC" : "inherit"}
+                  color={selectedChat === chat ? "white" : "black"}
+                  px={2.5}
+                  py={2}
+                  borderRadius="lg"
+                  display="flex"
+                  alignItems="center"
+                  key={chat._id}
+                >
+                  <Avatar
+                    mr={2}
+                    size="md"
+                    cursor="pointer"
+                    name={chat.isGroupChat ? chat.chatName : sender}
+                    src={user.pic}
+                  />
+                  <Box>
+                    <Text>{chat.isGroupChat ? chat.chatName : sender}</Text>
+                    {chat.latestMessage && (
+                      <Text fontSize="xs" noOfLines={1}>
+                        <b>
+                          {chat.latestMessage.sender._id === user._id
+                            ? "You: "
+                            : `${chat.latestMessage.sender.name}: `}
+                        </b>
+                        {chat.latestMessage.content}
+                      </Text>
+                    )}
+                  </Box>
+                </Box>
+              );
+            })}
           </Stack>
         ) : (
           <ChatLoading />
