@@ -165,7 +165,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       {selectedChat ? (
         <>
           <Text
-            fontSize={{ base: "28px", md: "30px" }}
+            fontSize={{ base: "18px", md: "22px" }}
             pb={3}
             px={2}
             w="100%"
@@ -181,7 +181,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             />
             {selectedChat.isGroupChat ? (
               <>
-                {selectedChat.chatName.toUpperCase()}
+                {selectedChat.chatName}
                 <UpdateGroupChatModal
                   fetchAgain={fetchAgain}
                   setFetchAgain={setFetchAgain}
