@@ -1,5 +1,13 @@
 import { AddIcon } from "@chakra-ui/icons";
-import { Box, Button, Stack, Text, useToast, Avatar } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Stack,
+  Text,
+  useToast,
+  Avatar,
+  useDisclosure,
+} from "@chakra-ui/react";
 import axios from "axios";
 import React, { useEffect } from "react";
 import { getSender } from "../config/ChatLogic";
@@ -9,7 +17,7 @@ import GroupChatModal from "./miscellaneous/GroupChatModal";
 
 const MyChats = ({ fetchAgain }) => {
   const { user, selectedChat, setSelectedChat, chats, setChats } = ChatState();
-
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
 
   const fetchChats = async () => {
@@ -59,7 +67,7 @@ const MyChats = ({ fetchAgain }) => {
         alignItems="center"
       >
         My Chats
-        <GroupChatModal>
+        {/* <GroupChatModal>
           <Button
             display="flex"
             fontSize={{ base: "17px", md: "10px", lg: "16px" }}
@@ -67,7 +75,20 @@ const MyChats = ({ fetchAgain }) => {
           >
             New Group Chat
           </Button>
-        </GroupChatModal>
+        </GroupChatModal> */}
+        <Button
+          display="flex"
+          fontSize={{ base: "17px", md: "10px", lg: "16px" }}
+          rightIcon={<AddIcon fontSize="14px" />}
+          onClick={onOpen}
+        >
+          New Group Chat
+        </Button>
+        {isOpen && (
+          <>
+            <GroupChatModal isOpen={isOpen} onClose={onClose} />
+          </>
+        )}
       </Box>
       <Box
         display="flex"
@@ -80,6 +101,7 @@ const MyChats = ({ fetchAgain }) => {
         borderRadius="lg"
         overflowY="hidden"
       >
+        {console.log('chats', chats)}
         {chats ? (
           <Stack overflowY="scroll" spacing={0}>
             {chats.map((chat) => {

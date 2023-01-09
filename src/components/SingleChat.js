@@ -1,4 +1,4 @@
-import { ArrowBackIcon } from "@chakra-ui/icons";
+import { ArrowBackIcon, ViewIcon } from "@chakra-ui/icons";
 import {
   Box,
   FormControl,
@@ -7,6 +7,7 @@ import {
   Spinner,
   Text,
   useToast,
+  useDisclosure,
 } from "@chakra-ui/react";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
@@ -19,6 +20,7 @@ import "./styles.css";
 import io from "socket.io-client";
 import Lottie from "react-lottie";
 import animationData from "../animations/typing.json";
+import GroupChatModal from "./miscellaneous/GroupChatModal";
 
 let socket, selectedChatCompare;
 
@@ -37,6 +39,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [socketConnected, setSocketConnected] = useState(false);
   const [typing, setTyping] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const defaultOptions = {
     loop: true,
@@ -182,11 +185,25 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             {selectedChat.isGroupChat ? (
               <>
                 {selectedChat.chatName}
-                <UpdateGroupChatModal
+                {/* <UpdateGroupChatModal
                   fetchAgain={fetchAgain}
                   setFetchAgain={setFetchAgain}
                   fetchMessages={fetchMessages}
+                /> */}
+                <IconButton
+                  display={{ base: "flex" }}
+                  icon={<ViewIcon />}
+                  onClick={onOpen}
                 />
+                {isOpen && (
+                  <>
+                    <GroupChatModal
+                      selectedChat={selectedChat}
+                      isOpen={isOpen}
+                      onClose={onClose}
+                    />
+                  </>
+                )}
               </>
             ) : (
               <>

@@ -7,7 +7,6 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
-  useDisclosure,
   Button,
   useToast,
   FormControl,
@@ -18,8 +17,7 @@ import { ChatState } from "../../context/ChatProvider";
 import axios from "axios";
 import { Select } from "chakra-react-select";
 
-const GroupChatModal = ({ children }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+const GroupChatModal = ({ selectedChat, isOpen, onClose }) => {
   const [groupChatName, setGroupChatName] = useState("");
   const toast = useToast();
   const [users, setUsers] = useState([]);
@@ -55,6 +53,46 @@ const GroupChatModal = ({ children }) => {
   useEffect(() => {
     fetchUsers();
   }, []);
+console.log("selectedChat", selectedChat)
+  useEffect(() => {
+    if (selectedChat) {
+      setGroupChatName(selectedChat.chatName);
+      setSelectedUsers(
+        selectedChat.users.map((user) => ({
+          label: user.name,
+          value: user._id,
+        }))
+      );
+    }
+  }, [selectedChat]);
+
+  const createNewChat = async (config) => {
+    const { data } = await axios.post(
+      `/api/chat/group`,
+      {
+        name: groupChatName,
+        users: JSON.stringify(selectedUsers.map((u) => u.value)),
+      },
+      config
+    );
+    console.log("created new chat");
+    setChats([data, ...chats]);
+  };
+
+  const updateChat = async (config) => {
+    const { data } = await axios.put(
+      `/api/chat/group/${selectedChat._id}`,
+      {
+        name: groupChatName,
+        users: JSON.stringify(selectedUsers.map((u) => u.value)),
+      },
+      config
+    );
+    const updatedChats = chats.map((chat) =>
+      chat._id === data._id ? data : chat
+    );
+    setChats(updatedChats);
+  };
 
   const handleSubmit = async () => {
     if (!groupChatName || selectedUsers.length <= 0) {
@@ -74,15 +112,8 @@ const GroupChatModal = ({ children }) => {
           Authorization: `Bearer ${user.token}`,
         },
       };
-      const { data } = await axios.post(
-        `/api/chat/group`,
-        {
-          name: groupChatName,
-          users: JSON.stringify(selectedUsers.map((u) => u.value)),
-        },
-        config
-      );
-      setChats([data, ...chats]);
+      (await selectedChat) ? updateChat(config) : createNewChat(config);
+      console.log("finish");
       onClose();
       toast({
         title: "New Group Chat Created!",
@@ -104,49 +135,47 @@ const GroupChatModal = ({ children }) => {
   };
 
   return (
-    <>
-      <span onClick={onOpen}>{children}</span>
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader
-            fontSize="20px"
-            fontFamily="Work sans"
-            display="flex"
-            justifyContent="center"
-          >
-            Create Group Chat
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody display="flex" flexDir="column" alignItems="center">
-            <FormControl>
-              <Input
-                placeholder="ChatName"
-                mb={3}
-                onChange={(e) => setGroupChatName(e.target.value)}
-              />
-            </FormControl>
-            <FormControl>
-              <Select
-                isMulti
-                name="colors"
-                options={users}
-                placeholder="Select some colors..."
-                closeMenuOnSelect={false}
-                value={selectedUsers}
-                onChange={setSelectedUsers}
-              />
-            </FormControl>
-          </ModalBody>
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader
+          fontSize="20px"
+          fontFamily="Work sans"
+          display="flex"
+          justifyContent="center"
+        >
+          {selectedChat ? groupChatName : "Create Group Chat"}
+        </ModalHeader>
+        <ModalCloseButton />
+        <ModalBody display="flex" flexDir="column" alignItems="center">
+          <FormControl>
+            <Input
+              placeholder="ChatName"
+              mb={3}
+              value={groupChatName}
+              onChange={(e) => setGroupChatName(e.target.value)}
+            />
+          </FormControl>
+          <FormControl>
+            <Select
+              isMulti
+              name="colors"
+              options={users}
+              placeholder="Select some colors..."
+              closeMenuOnSelect={false}
+              value={selectedUsers}
+              onChange={setSelectedUsers}
+            />
+          </FormControl>
+        </ModalBody>
 
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleSubmit}>
-              Create Chat
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </>
+        <ModalFooter>
+          <Button colorScheme="blue" mr={3} onClick={handleSubmit}>
+            {selectedChat ? "Update Chat" : "Create Chat"}
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 };
 
