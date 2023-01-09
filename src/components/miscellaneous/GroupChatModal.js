@@ -53,7 +53,7 @@ const GroupChatModal = ({ selectedChat, isOpen, onClose }) => {
   useEffect(() => {
     fetchUsers();
   }, []);
-  console.log("selectedChat", selectedChat);
+
   useEffect(() => {
     if (selectedChat) {
       setGroupChatName(selectedChat.chatName);
@@ -117,8 +117,8 @@ const GroupChatModal = ({ selectedChat, isOpen, onClose }) => {
       onClose();
       toast({
         title: selectedChat
-          ? "New Group Chat created!"
-          : "Group Chat is updated!",
+          ? "Group Chat is updated!"
+          : "New Group Chat created!",
         status: "success",
         duration: 5000,
         isClosable: true,

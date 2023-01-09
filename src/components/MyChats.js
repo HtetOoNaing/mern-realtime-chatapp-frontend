@@ -101,7 +101,6 @@ const MyChats = ({ fetchAgain }) => {
         borderRadius="lg"
         overflowY="hidden"
       >
-        {console.log('chats', chats)}
         {chats ? (
           <Stack overflowY="scroll" spacing={0}>
             {chats.map((chat) => {
@@ -110,10 +109,11 @@ const MyChats = ({ fetchAgain }) => {
                 <Box
                   onClick={() => setSelectedChat(chat)}
                   cursor="pointer"
-                  bg={selectedChat === chat ? "#38B2AC" : "inherit"}
-                  color={selectedChat === chat ? "white" : "black"}
+                  bg={selectedChat?._id === chat._id ? "#38B2AC" : "inherit"}
+                  color={selectedChat?._id === chat._id ? "white" : "black"}
                   _hover={{
-                    background: selectedChat !== chat ? "#B2F5EA" : "#38B2AC",
+                    background:
+                      selectedChat?._id !== chat._id ? "#B2F5EA" : "#38B2AC",
                   }}
                   px={2.5}
                   py={2}
