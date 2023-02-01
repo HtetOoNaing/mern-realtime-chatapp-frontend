@@ -8,8 +8,8 @@ import {
   Avatar,
   useDisclosure,
 } from "@chakra-ui/react";
-import axios from "axios";
 import React, { useEffect } from "react";
+import Axios from "../config/Axios";
 import { getSender } from "../config/ChatLogic";
 import { ChatState } from "../context/ChatProvider";
 import ChatLoading from "./ChatLoading";
@@ -27,7 +27,7 @@ const MyChats = ({ fetchAgain }) => {
           Authorization: `Bearer ${user.token}`,
         },
       };
-      const { data } = await axios.get(`/api/chat`, config);
+      const { data } = await Axios.get(`/api/chat`, config);
       setChats(data);
     } catch (error) {
       toast({

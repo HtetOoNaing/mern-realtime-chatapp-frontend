@@ -25,11 +25,11 @@ import { BellIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import { ChatState } from "../../context/ChatProvider";
 import ProfileModal from "./ProfileModal";
 import { useHistory } from "react-router-dom";
-import axios from "axios";
 import ChatLoading from "../ChatLoading";
 import UserListItem from "../userAvatar/UserListItem";
 import { getSender } from "../../config/ChatLogic";
 import NotificationBadge, { Effect } from "react-notification-badge";
+import Axios from "../../config/Axios";
 
 const SideDrawer = () => {
   const {
@@ -64,7 +64,7 @@ const SideDrawer = () => {
             Authorization: `Bearer ${user.token}`,
           },
         };
-        const { data } = await axios.get(`/api/user?search=${value}`, config);
+        const { data } = await Axios.get(`/api/user?search=${value}`, config);
         setSearchResult(data);
         setLoading(false);
       } catch (error) {
@@ -91,7 +91,7 @@ const SideDrawer = () => {
           Authorization: `Bearer ${user.token}`,
         },
       };
-      const { data } = await axios.post(
+      const { data } = await Axios.post(
         `/api/chat`,
         { userId, publicKey },
         config

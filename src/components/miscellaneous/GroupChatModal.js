@@ -14,8 +14,8 @@ import {
 } from "@chakra-ui/react";
 
 import { ChatState } from "../../context/ChatProvider";
-import axios from "axios";
 import { Select } from "chakra-react-select";
+import Axios from "../../config/Axios";
 
 const GroupChatModal = ({ selectedChat, isOpen, onClose }) => {
   const [groupChatName, setGroupChatName] = useState("");
@@ -32,7 +32,7 @@ const GroupChatModal = ({ selectedChat, isOpen, onClose }) => {
           Authorization: `Bearer ${user.token}`,
         },
       };
-      const { data } = await axios.get(`/api/user`, config);
+      const { data } = await Axios.get(`/api/user`, config);
       const userOptions = data.map((user) => ({
         label: user.name,
         value: user._id,
@@ -67,7 +67,7 @@ const GroupChatModal = ({ selectedChat, isOpen, onClose }) => {
   }, [selectedChat]);
 
   const createNewChat = async (config) => {
-    const { data } = await axios.post(
+    const { data } = await Axios.post(
       `/api/chat/group`,
       {
         name: groupChatName,
@@ -80,7 +80,7 @@ const GroupChatModal = ({ selectedChat, isOpen, onClose }) => {
   };
 
   const updateChat = async (config) => {
-    const { data } = await axios.put(
+    const { data } = await Axios.put(
       `/api/chat/group/${selectedChat._id}`,
       {
         name: groupChatName,

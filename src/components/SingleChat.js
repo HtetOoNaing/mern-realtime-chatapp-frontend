@@ -9,7 +9,6 @@ import {
   useToast,
   useDisclosure,
 } from "@chakra-ui/react";
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { getSender, getSenderFull, isSameUser } from "../config/ChatLogic";
 import { ChatState } from "../context/ChatProvider";
@@ -22,6 +21,7 @@ import Lottie from "react-lottie";
 import animationData from "../animations/typing.json";
 import GroupChatModal from "./miscellaneous/GroupChatModal";
 import { AES, enc } from "crypto-js";
+import Axios from "../config/Axios";
 
 let socket, selectedChatCompare;
 
@@ -61,7 +61,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         },
       };
       setLoading(true);
-      const { data } = await axios.get(
+      const { data } = await Axios.get(
         `/api/message/${selectedChat._id}`,
         config
       );
@@ -139,7 +139,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         ).toString();
         console.log("encryptedMsg", encryptedMsg);
         setNewMessage("");
-        const { data } = await axios.post(
+        const { data } = await Axios.post(
           `/api/message`,
           {
             content: encryptedMsg,
