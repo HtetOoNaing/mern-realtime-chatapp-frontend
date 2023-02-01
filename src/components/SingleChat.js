@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { getSender, getSenderFull } from "../config/ChatLogic";
+import { getSender, getSenderFull, isSameUser } from "../config/ChatLogic";
 import { ChatState } from "../context/ChatProvider";
 import ProfileModal from "./miscellaneous/ProfileModal";
 import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal";
@@ -21,6 +21,7 @@ import io from "socket.io-client";
 import Lottie from "react-lottie";
 import animationData from "../animations/typing.json";
 import GroupChatModal from "./miscellaneous/GroupChatModal";
+import { AES, enc } from "crypto-js";
 
 let socket, selectedChatCompare;
 
@@ -64,7 +65,19 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         `/api/message/${selectedChat._id}`,
         config
       );
-      setMessages(data);
+      const messageArr = data.map((msg) => {
+        const isSender = msg.sender._id === user._id;
+        if (isSender) {
+          const decryptedMsg = AES.decrypt(
+            msg.content,
+            selectedChat.passphrase
+          ).toString(enc.Utf8);
+          msg.decrypted = true;
+          msg.message = decryptedMsg;
+        }
+        return msg;
+      });
+      setMessages(messageArr);
       setLoading(false);
       socket.emit("join chat", selectedChat._id);
     } catch (error) {
@@ -119,16 +132,23 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             Authorization: `Bearer ${user.token}`,
           },
         };
+        console.log("selectedChat", selectedChat);
+        const encryptedMsg = AES.encrypt(
+          newMessage,
+          selectedChat.passphrase
+        ).toString();
+        console.log("encryptedMsg", encryptedMsg);
         setNewMessage("");
         const { data } = await axios.post(
           `/api/message`,
           {
-            content: newMessage,
+            content: encryptedMsg,
             chatId: selectedChat._id,
           },
           config
         );
-        setMessages([...messages, data]);
+        const updatedData = { ...data, decrypted: true, message: newMessage };
+        setMessages([...messages, updatedData]);
         socket.emit("new message", data);
       } catch (error) {
         toast({
@@ -156,7 +176,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       const timeNow = new Date().getTime();
       const timeDiff = timeNow - lastTypingTime;
 
-      if (timeDiff >= timerLength && typing) {
+      if (timeDiff >= timerLength && !typing) {
         socket.emit("stop typing", selectedChat._id);
         setTyping(false);
       }
@@ -235,9 +255,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               />
             ) : (
               <div className="messages">
-                <ScrollableChat messages={messages} />
+                <ScrollableChat messages={messages} setMessages={setMessages} />
               </div>
             )}
+            {console.log("isTyping", isTyping)}
             <FormControl onKeyDown={sendMessage} isRequired mt={3}>
               {isTyping ? (
                 <div>

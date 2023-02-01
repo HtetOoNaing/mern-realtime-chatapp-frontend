@@ -115,6 +115,7 @@ const MyChats = ({ fetchAgain }) => {
                     background:
                       selectedChat?._id !== chat._id ? "#B2F5EA" : "#38B2AC",
                   }}
+                  overflow="hidden"
                   px={2.5}
                   py={2}
                   borderRadius="lg"

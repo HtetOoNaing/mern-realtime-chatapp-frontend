@@ -82,7 +82,7 @@ const SideDrawer = () => {
     }
   };
 
-  const accessChat = async (userId) => {
+  const accessChat = async (userId, publicKey) => {
     try {
       setLoadingChat(true);
       const config = {
@@ -91,7 +91,11 @@ const SideDrawer = () => {
           Authorization: `Bearer ${user.token}`,
         },
       };
-      const { data } = await axios.post(`/api/chat`, { userId }, config);
+      const { data } = await axios.post(
+        `/api/chat`,
+        { userId, publicKey },
+        config
+      );
       if (!chats.find((c) => c._id === data._id)) setChats([data, ...chats]);
       setSelectedChat(data);
       setLoadingChat(false);
@@ -128,7 +132,7 @@ const SideDrawer = () => {
           </Button>
         </Tooltip>
         <Text fontSize="2xl" fontFamily="Work sans">
-          Talk-A-Tive
+          Hybrid Encryption
         </Text>
         <div>
           <Menu>
@@ -196,7 +200,7 @@ const SideDrawer = () => {
                 <UserListItem
                   key={user._id}
                   user={user}
-                  handleClick={() => accessChat(user._id)}
+                  handleClick={() => accessChat(user._id, user.publicKey)}
                 />
               ))
             )}
