@@ -67,6 +67,9 @@ const GroupChatModal = ({ selectedChat, isOpen, onClose }) => {
   }, [selectedChat]);
 
   const createNewChat = async (config) => {
+    console.log("groupChatName", groupChatName);
+    console.log("selectedUsers", selectedUsers);
+    
     const { data } = await Axios.post(
       `/api/chat/group`,
       {
