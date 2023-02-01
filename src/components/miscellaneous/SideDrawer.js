@@ -131,8 +131,8 @@ const SideDrawer = () => {
             </Text>
           </Button>
         </Tooltip>
-        <Text fontSize="2xl" fontFamily="Work sans">
-          Hybrid Encryption
+        <Text fontSize={{ base: 'xl', lg: '2xl' }} fontFamily="Work sans">
+          Hybrid
         </Text>
         <div>
           <Menu>

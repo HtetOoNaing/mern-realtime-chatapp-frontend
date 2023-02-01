@@ -35,8 +35,8 @@ const Home = () => {
         borderRadius="lg"
         borderWidth="1px"
       >
-        <Text fontSize="4xl" fontFamily="Work Sans" textAlign="center">
-          Talk A Tive
+        <Text fontSize="3xl" fontFamily="Work Sans" textAlign="center">
+          Hybrid Encryption
         </Text>
       </Box>
       <Box bg="white" w="100%" p={4} borderRadius="lg" borderWidth="1px">
