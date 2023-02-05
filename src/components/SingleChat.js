@@ -8,6 +8,8 @@ import {
   Text,
   useToast,
   useDisclosure,
+  Flex,
+  Select,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { getSender, getSenderFull, isSameUser } from "../config/ChatLogic";
@@ -35,6 +37,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   } = ChatState();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [isSecure, setIsSecure] = useState(false);
   const [loading, setLoading] = useState(false);
   const toast = useToast();
   const [socketConnected, setSocketConnected] = useState(false);
@@ -94,7 +97,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   useEffect(() => {
     socket = io(process.env.REACT_APP_BASE_URL);
-    console.log("process.env.REACT_APP_BASE_URL", process.env.REACT_APP_BASE_URL)
+    console.log(
+      "process.env.REACT_APP_BASE_URL",
+      process.env.REACT_APP_BASE_URL
+    );
     socket.emit("setup", user);
     socket.on("connected", () => setSocketConnected(true));
     socket.on("typing", () => setIsTyping(true));
@@ -122,7 +128,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       }
     });
   });
-
+  console.log("isSecure", isSecure);
   const sendMessage = async (e) => {
     if (e.key === "Enter" && newMessage) {
       socket.emit("stop typing", selectedChat._id);
@@ -133,18 +139,21 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             Authorization: `Bearer ${user.token}`,
           },
         };
-        console.log("selectedChat", selectedChat);
-        const encryptedMsg = AES.encrypt(
-          newMessage,
-          selectedChat.passphrase
-        ).toString();
-        console.log("encryptedMsg", encryptedMsg);
+        let contentMsg = newMessage;
+        if (isSecure === "1") {
+          contentMsg = AES.encrypt(
+            newMessage,
+            selectedChat.passphrase
+          ).toString();
+        }
+
         setNewMessage("");
         const { data } = await Axios.post(
           `/api/message`,
           {
-            content: encryptedMsg,
+            content: contentMsg,
             chatId: selectedChat._id,
+            isSecure,
           },
           config
         );
@@ -259,27 +268,39 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 <ScrollableChat messages={messages} setMessages={setMessages} />
               </div>
             )}
-            {console.log("isTyping", isTyping)}
-            <FormControl onKeyDown={sendMessage} isRequired mt={3}>
-              {isTyping ? (
-                <div>
-                  <Lottie
-                    options={defaultOptions}
-                    width={70}
-                    style={{ marginBottom: 15, marginLeft: 0 }}
-                  />
-                </div>
-              ) : (
-                <></>
-              )}
-              <Input
-                variant="filled"
-                bg="#E0E0E0"
-                placeholder="Enter a message.."
-                onChange={typingHandler}
-                value={newMessage}
-              />
-            </FormControl>
+            {isTyping ? (
+              <div>
+                <Lottie
+                  options={defaultOptions}
+                  width={70}
+                  style={{ marginBottom: 15, marginLeft: 0 }}
+                />
+              </div>
+            ) : (
+              <></>
+            )}
+            <Flex gap={2} mt={3}>
+              <FormControl w={100}>
+                <Select
+                  value={isSecure}
+                  onChange={(e) => setIsSecure(e.target.value)}
+                  bg="#E0E0E0"
+                  cursor="pointer"
+                >
+                  <option value={0}>plain</option>
+                  <option value={1}>secure</option>
+                </Select>
+              </FormControl>
+              <FormControl onKeyDown={sendMessage} isRequired flex={1}>
+                <Input
+                  variant="filled"
+                  bg="#E0E0E0"
+                  placeholder="Enter a message.."
+                  onChange={typingHandler}
+                  value={newMessage}
+                />
+              </FormControl>
+            </Flex>
           </Box>
         </>
       ) : (
