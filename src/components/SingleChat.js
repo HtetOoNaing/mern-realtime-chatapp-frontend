@@ -100,10 +100,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   useEffect(() => {
     socket = io(process.env.REACT_APP_BASE_URL);
-    console.log(
-      "process.env.REACT_APP_BASE_URL",
-      process.env.REACT_APP_BASE_URL
-    );
     socket.emit("setup", user);
     socket.on("connected", () => setSocketConnected(true));
     socket.on("typing", () => setIsTyping(true));
@@ -218,11 +214,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             {selectedChat.isGroupChat ? (
               <>
                 {selectedChat.chatName}
-                {/* <UpdateGroupChatModal
-                  fetchAgain={fetchAgain}
-                  setFetchAgain={setFetchAgain}
-                  fetchMessages={fetchMessages}
-                /> */}
                 <IconButton
                   display={{ base: "flex" }}
                   icon={<ViewIcon />}
@@ -232,6 +223,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                   <>
                     <GroupChatModal
                       selectedChat={selectedChat}
+                      setSelectedChat={setSelectedChat}
                       isOpen={isOpen}
                       onClose={onClose}
                     />

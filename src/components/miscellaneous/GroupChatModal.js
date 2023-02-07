@@ -17,7 +17,7 @@ import { ChatState } from "../../context/ChatProvider";
 import { Select } from "chakra-react-select";
 import Axios from "../../config/Axios";
 
-const GroupChatModal = ({ selectedChat, isOpen, onClose }) => {
+const GroupChatModal = ({ selectedChat, setSelectedChat, isOpen, onClose }) => {
   const [groupChatName, setGroupChatName] = useState("");
   const toast = useToast();
   const [users, setUsers] = useState([]);
@@ -67,9 +67,6 @@ const GroupChatModal = ({ selectedChat, isOpen, onClose }) => {
   }, [selectedChat]);
 
   const createNewChat = async (config) => {
-    console.log("groupChatName", groupChatName);
-    console.log("selectedUsers", selectedUsers);
-    
     const { data } = await Axios.post(
       `/api/chat/group`,
       {
@@ -78,7 +75,6 @@ const GroupChatModal = ({ selectedChat, isOpen, onClose }) => {
       },
       config
     );
-    console.log("created new chat");
     setChats([data, ...chats]);
   };
 
@@ -91,6 +87,7 @@ const GroupChatModal = ({ selectedChat, isOpen, onClose }) => {
       },
       config
     );
+    setSelectedChat(data);
     const updatedChats = chats.map((chat) =>
       chat._id === data._id ? data : chat
     );
@@ -129,8 +126,10 @@ const GroupChatModal = ({ selectedChat, isOpen, onClose }) => {
       });
     } catch (error) {
       toast({
-        title: "Fail to create the chat!",
-        description: error.response.data,
+        title: selectedChat
+          ? "Fail to update the chat!"
+          : "Fail to create the chat!",
+        description: error?.response?.data,
         status: "error",
         duration: 5000,
         isClosable: true,

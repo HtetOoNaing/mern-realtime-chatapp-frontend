@@ -76,14 +76,14 @@ const MyChats = ({ fetchAgain }) => {
             New Group Chat
           </Button>
         </GroupChatModal> */}
-        {/* <Button
+        <Button
           display="flex"
           fontSize={{ base: "17px", md: "10px", lg: "16px" }}
           rightIcon={<AddIcon fontSize="14px" />}
           onClick={onOpen}
         >
           New Group Chat
-        </Button> */}
+        </Button>
         {isOpen && (
           <>
             <GroupChatModal isOpen={isOpen} onClose={onClose} />

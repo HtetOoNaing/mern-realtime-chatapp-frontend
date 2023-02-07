@@ -19,7 +19,6 @@ const ScrollableChat = ({ messages, setMessages }) => {
   const [errorMessage, setErrorMessage] = useState("");
 
   const showMoal = (msg) => {
-    console.log("msg", msg);
     if (msg.sender._id === user._id || msg.decrypted || !msg.isSecure) return;
     setSelectedMsg(msg);
     setPassText(selectedChat.passphrase);
