@@ -71,10 +71,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       const messageArr = data.map((msg) => {
         const isSender = msg.sender._id === user._id;
         if (isSender) {
-          const decryptedMsg = AES.decrypt(
-            msg.content,
-            selectedChat.passphrase
-          ).toString(enc.Utf8);
+          let decryptedMsg = msg.content;
+          if (msg.isSecure) {
+            decryptedMsg = AES.decrypt(
+              msg.content,
+              selectedChat.passphrase
+            ).toString(enc.Utf8);
+          }
           msg.decrypted = true;
           msg.message = decryptedMsg;
         }
@@ -128,7 +131,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       }
     });
   });
-  console.log("isSecure", isSecure);
+
   const sendMessage = async (e) => {
     if (e.key === "Enter" && newMessage) {
       socket.emit("stop typing", selectedChat._id);
