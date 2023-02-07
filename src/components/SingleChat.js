@@ -275,17 +275,20 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               <></>
             )}
             <Flex gap={2} mt={3}>
-              <FormControl w={100}>
-                <Select
-                  value={isSecure}
-                  onChange={(e) => setIsSecure(e.target.value)}
-                  bg="#E0E0E0"
-                  cursor="pointer"
-                >
-                  <option value={0}>plain</option>
-                  <option value={1}>secure</option>
-                </Select>
-              </FormControl>
+              {!selectedChat.isGroupChat && (
+                <FormControl w={100}>
+                  <Select
+                    value={isSecure}
+                    onChange={(e) => setIsSecure(e.target.value)}
+                    bg="#E0E0E0"
+                    cursor="pointer"
+                  >
+                    <option value={0}>plain</option>
+                    <option value={1}>secure</option>
+                  </Select>
+                </FormControl>
+              )}
+
               <FormControl onKeyDown={sendMessage} isRequired flex={1}>
                 <Input
                   variant="filled"
