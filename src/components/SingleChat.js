@@ -264,17 +264,17 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               </div>
             )}
             {isTyping ? (
-              <div>
+              <Box mt={2}>
                 <Lottie
                   options={defaultOptions}
                   width={70}
-                  style={{ marginBottom: 15, marginLeft: 0 }}
+                  style={{ marginLeft: 0 }}
                 />
-              </div>
+              </Box>
             ) : (
               <></>
             )}
-            <Flex gap={2} mt={3}>
+            <Flex gap={2} mt={2}>
               {!selectedChat.isGroupChat && (
                 <FormControl w={100}>
                   <Select
