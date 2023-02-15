@@ -1,4 +1,4 @@
-import { ArrowBackIcon, ViewIcon } from "@chakra-ui/icons";
+import { ArrowBackIcon, PhoneIcon, ViewIcon } from "@chakra-ui/icons";
 import {
   Box,
   FormControl,
@@ -10,8 +10,9 @@ import {
   useDisclosure,
   Flex,
   Select,
+  Button,
 } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { getSender, getSenderFull, isSameUser } from "../config/ChatLogic";
 import { ChatState } from "../context/ChatProvider";
 import ProfileModal from "./miscellaneous/ProfileModal";
@@ -24,6 +25,7 @@ import animationData from "../animations/typing.json";
 import GroupChatModal from "./miscellaneous/GroupChatModal";
 import { AES, enc } from "crypto-js";
 import Axios from "../config/Axios";
+import Peer from "simple-peer";
 
 let socket, selectedChatCompare;
 
@@ -44,6 +46,22 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [typing, setTyping] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  //video call
+  const [me, setMe] = useState("");
+  const [stream, setStream] = useState();
+  const [receivingCall, setReceivingCall] = useState(false);
+  const [caller, setCaller] = useState("");
+  const [callerSignal, setCallerSignal] = useState();
+  const [callingUser, setCallingUser] = useState(false);
+  const [callAccepted, setCallAccepted] = useState(false);
+  const [idToCall, setIdToCall] = useState("");
+  const [callEnded, setCallEnded] = useState(false);
+  const [name, setName] = useState("");
+
+  const myVideo = useRef();
+  const userVideo = useRef();
+  const connectionRef = useRef();
 
   const defaultOptions = {
     loop: true,
@@ -104,6 +122,35 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     socket.on("connected", () => setSocketConnected(true));
     socket.on("typing", () => setIsTyping(true));
     socket.on("stop typing", () => setIsTyping(false));
+
+    socket.on("me", async (id) => {
+      setMe(id);
+      try {
+        const config = {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user.token}`,
+          },
+        };
+        const { data } = await Axios.put(
+          `/api/user/${user._id}`,
+          {
+            socketId: id,
+          },
+          config
+        );
+        console.log("data", data);
+      } catch (error) {
+        toast({
+          title: "Error Occured!",
+          description: "Failed to update the user",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "bottom",
+        });
+      }
+    });
   }, []);
 
   useEffect(() => {
@@ -126,7 +173,77 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         setMessages([...messages, newMessageReceived]);
       }
     });
+    socket.on("callUser", (data) => {
+      setReceivingCall(true);
+      setCaller(data.from);
+      setName(data.name);
+      setCallerSignal(data.signal);
+      console.log("data.stream", data.stream);
+      setStream(JSON.parse(data.stream));
+    });
   });
+
+  const callUser = () => {
+    setCallingUser(true);
+    console.log("callUser")
+    navigator.mediaDevices
+      .getUserMedia({ video: true, audio: true })
+      .then((stream) => {
+        setStream(stream);
+        myVideo.current.srcObject = stream;
+        const anotherUser = selectedChat.users.find((u) => u._id !== user._id);
+        const peer = new Peer({
+          initiator: true,
+          trickle: false,
+          stream: stream,
+        });
+        console.log("stream", stream);
+        peer.on("signal", (data) => {
+          socket.emit("callUser", {
+            userToCall: anotherUser.socketId,
+            signalData: data,
+            from: me,
+            name: name,
+            stream: JSON.stringify(stream),
+          });
+        });
+
+        peer.on("stream", (stream) => {
+          userVideo.current.srcObject = stream;
+        });
+
+        socket.on("callAccepted", (signal) => {
+          setCallAccepted(true);
+          peer.signal(signal);
+        });
+
+        connectionRef.current = peer;
+      });
+  };
+
+  const answerCall = () => {
+    setCallAccepted(true);
+    console.log("stream", stream);
+    const peer = new Peer({
+      initiator: false,
+      trickle: false,
+      stream: stream,
+    });
+    peer.on("signal", (data) => {
+      socket.emit("answerCall", { signal: data, to: caller });
+    });
+    peer.on("stream", (stream) => {
+      userVideo.current.srcObject = stream;
+    });
+    peer.signal(callerSignal);
+    connectionRef.current = peer;
+  };
+
+  const leaveCall = () => {
+    setCallEnded(true);
+    setCallingUser(false);
+    connectionRef.current.destroy();
+  };
 
   const sendMessage = async (e) => {
     if (e.key === "Enter" && newMessage) {
@@ -233,7 +350,16 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             ) : (
               <>
                 {getSender(user, selectedChat.users)}
-                <ProfileModal user={getSenderFull(user, selectedChat.users)} />
+                <Flex>
+                  {/* <IconButton
+                    display={{ base: "flex" }}
+                    icon={<PhoneIcon />}
+                    onClick={callUser}
+                  /> */}
+                  <ProfileModal
+                    user={getSenderFull(user, selectedChat.users)}
+                  />
+                </Flex>
               </>
             )}
           </Text>
@@ -274,6 +400,33 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             ) : (
               <></>
             )}
+            {/* <Box sx={{ w: 500, h: 500 }}>
+              {callingUser && (
+                <video
+                  playsInline
+                  muted
+                  ref={myVideo}
+                  autoPlay
+                  controls
+                  style={{ width: "500px" }}
+                />
+              )}
+              {callAccepted && !callEnded && (
+                <video
+                  playsInline
+                  muted
+                  ref={userVideo}
+                  autoPlay
+                  style={{ width: "500px" }}
+                />
+              )}
+              {receivingCall && !callAccepted && (
+                <div>
+                  {name} is calling you...
+                  <Button onClick={answerCall}>Answer</Button>
+                </div>
+              )}
+            </Box> */}
             <Flex gap={2} mt={2}>
               {!selectedChat.isGroupChat && (
                 <FormControl w={100}>
